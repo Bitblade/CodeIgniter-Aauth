@@ -279,19 +279,28 @@ class Aauth {
 			}
 	 	}
 	 	
+	 	// Fetch password hash
 		$query = null;
 		$query = $this->aauth_db->where($db_identifier, $identifier);
-
-		// Database stores pasword hashed password
-		$query = $this->aauth_db->where('pass', $this->hash_password($pass, $user_id));
+		$query = $this->aauth_db->where('id', $user_id);
 		$query = $this->aauth_db->where('banned', 0);
-
 		$query = $this->aauth_db->get($this->config_vars['users']);
-
+		
 		$row = $query->row();
+		$authenticated = false;
+		
+		if($query->num_rows() != 0){
+			// User is not banned
+			if(isset($this->config_vars['use_php_password_hash']) && $this->config_vars['use_php_password_hash']){
+				$authenticated = password_verify($pass, $row->pass);
+			}else{
+				// Database stores pasword hashed password
+				$authenticated = ($this->hash_password($pass, $user_id) == $pass);
+			}
+		}
 
 		// if email and pass matches and not banned
-		if ( $query->num_rows() != 0 ) {
+		if ( $authenticated ) {
 
 			// If email and pass matches
 			// create session
@@ -567,7 +576,7 @@ class Aauth {
 	 * 
 	 * FIXME Passwords should never be transmitted and/or stored in the clear.
 	 * 		 Since e-mail does not guarantee compliance to either of these restrictions, 
-	 * 		 move towards mailing an one-time-key allowing the password to be changed.
+	 * 		 do not mail it to the user.
 	 */
 	public function reset_password($user_id, $ver_code){
 
