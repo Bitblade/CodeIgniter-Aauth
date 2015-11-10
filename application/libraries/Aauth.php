@@ -564,6 +564,10 @@ class Aauth {
 	 * @param int $user_id User id to reset password for
 	 * @param string $ver_code Verification code for account
 	 * @return bool Password reset fails/succeeds
+	 * 
+	 * FIXME Passwords should never be transmitted and/or stored in the clear.
+	 * 		 Since e-mail does not guarantee compliance to either of these restrictions, 
+	 * 		 move towards mailing an one-time-key allowing the password to be changed.
 	 */
 	public function reset_password($user_id, $ver_code){
 
