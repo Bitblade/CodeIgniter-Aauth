@@ -759,11 +759,13 @@ class Aauth {
 				$this->send_verification($user_id);
 			}
 
-			// Update to correct salted password
-			$data = null;
-			$data['pass'] = $this->hash_password($pass, $user_id);
-			$this->aauth_db->where('id', $user_id);
-			$this->aauth_db->update($this->config_vars['users'], $data);
+			if(!isset($this->config_vars['use_php_password_hash']) || $this->config_vars['use_php_password_hash']){
+				// Update to correct salted password
+				$data = null;
+				$data['pass'] = $this->hash_password($pass, $user_id);
+				$this->aauth_db->where('id', $user_id);
+				$this->aauth_db->update($this->config_vars['users'], $data);
+			}
 
 			return $user_id;
 
